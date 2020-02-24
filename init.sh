@@ -3,14 +3,14 @@
 install_azcli () {
     echo "Installing AZ CLI" | tee ${LOG_FILE} 2>&1
     apt-get update > /dev/null 2>&1
-    apt-get install curl apt-transport-https lsb-release gpg >> ${LOG_FILE} 2>&1
+    apt-get install curl apt-transport-https lsb-release gpg -y >> ${LOG_FILE} 2>&1
     curl -sL https://packages.microsoft.com/keys/microsoft.asc | \
         gpg --dearmor | \
         tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
     AZ_REPO=$(lsb_release -cs)
     echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" > /etc/apt/sources.list.d/azure-cli.list
     apt-get update > /dev/null
-    apt-get install azure-cli >> ${LOG_FILE} 2>&1
+    apt-get install azure-cli -y >> ${LOG_FILE} 2>&1
     az extension add --name azure-cli-iot-ext  >> ${LOG_FILE} 2>&1
 }
 
@@ -56,7 +56,7 @@ install_terraform() {
 
 install_helm() {
   echo "Installing Helm" | tee ${LOG_FILE} 2>&1
-  curl -o /tmp/helm.tar.gz -L https://storage.googleapis.com/kubernetes-helm/helm-v2.14.0-linux-amd64.tar.gz >> ${LOG_FILE} 2>&1
+  curl -o /tmp/helm.tar.gz -L https://get.helm.sh/helm-v3.0.3-linux-amd64.tar.gz >> ${LOG_FILE} 2>&1
   tar -C /tmp -xvzf /tmp/helm.tar.gz >> {LOG_FILE}
   mv /tmp/linux-amd64/helm /bin/helm
   mv /tmp/linux-amd64/tiller /bin/tiller
@@ -84,6 +84,11 @@ install_kubeps1() {
   fi
 }
 
+install_awscli() {
+  echo "Installing AWS CLI"
+  apt-get install -y awscli >> ${LOG_FILE} 2>&1
+}
+
 while getopts 'h:u:' c
 do
     case $c in
@@ -99,6 +104,7 @@ LOG_FILE=/var/log/wsl_init.log
 echo "" > ${LOG_FILE}
 
 install_azcli
+install_awscli
 install_kubectl
 install_kubectx
 install_rke
